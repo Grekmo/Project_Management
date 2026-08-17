@@ -116,6 +116,17 @@ class ProjectController extends Controller
             if ($request->has('employee_ids')) {
                 $project->employees()->sync($request->employee_ids);
             }
+            system_log(
+                'created',
+                'Project',
+                $project->id,
+                'Created project: ' . $project->name,
+                [
+                    'project_id' => $project->id,
+                    'manager_id' => $project->manager_id,
+                    'employee_ids' => $request->employee_ids ?? [],
+                ]
+            );
         }
         if ($project) {
             return response()->json([
@@ -197,7 +208,18 @@ class ProjectController extends Controller
                     'status' => 422,
                     'errors' => $validator->errors(),
                 ], 422);
-            }else {
+            }else { //SYSTEM LOG    
+                $oldData = $project->only([
+                    'name',
+                    'status',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'manager_id',
+                    'employee_ids' => $project->employees()->pluck('id')->toArray(),
+                ]);
+                $oldData['employee_ids'] = $project->employees()->pluck('id')->toArray(); // Katjib l ids dyal employees li m3a had project
+
                 $project->update([
                     'name' => $request->name,
                     'status' => $request->status,
@@ -209,6 +231,26 @@ class ProjectController extends Controller
                 if ($request->has('employee_ids')) {
                     $project->employees()->sync($request->employee_ids);
                 }
+                $newData = $project->only([
+                    'name',
+                    'status',
+                    'description',
+                    'start_date',
+                    'end_date',
+                    'manager_id',
+                ]);
+                $newData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+
+                system_log(
+                    'updated',
+                    'Project',
+                    $project->id,
+                    'Updated project: ' . $project->name,
+                    [
+                        'old' => $oldData,
+                        'new' => $newData,
+                    ]
+                );
                 return response()->json([
                     'status' => 200,
                     'message' => 'project updated successfully',
@@ -230,6 +272,12 @@ class ProjectController extends Controller
                     'errors' => $validator->errors(),
                 ], 422);
             }else{
+                $oldData = $project->only([
+                    'status',
+                    'description',
+                ]);
+                $oldData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+
                 $project->update([
                     'status' => $request->status,
                     'description' => $request->description,
@@ -240,6 +288,22 @@ class ProjectController extends Controller
                         ID(2,4,5) lier m3a had l project / sync : katzid / katmsse7 / katkhli l users li khass 
                     */
                 }
+                $newData = $project->only([
+                    'status',
+                    'description',
+                ]);
+                $newData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+                
+                system_log(
+                    'updated',
+                    'Project',
+                    $project->id,
+                    'Updated project: ' . $project->name,
+                    [
+                        'old' => $oldData,
+                        'new' => $newData,
+                    ]
+                );
                 return response()->json([
                     'status' => 200,
                     'message' => 'project updated successfully',
@@ -257,9 +321,20 @@ class ProjectController extends Controller
      */
     public function destroy(string $id)
     {
-        $this->authorize('delete', Project::class);
         $project = Project::find($id);
         if ($project) {
+            $this->authorize('delete', $project);
+            system_log(
+                'deleted',
+                'Project',
+                $project->id,
+                'Deleted project: ' . $project->name,
+                [
+                    'status' => $project->status,
+                    'manager_id' => $project->manager_id,
+                    'employee_ids' => $project->employees()->pluck('id')->toArray(),
+                ]
+            );
             $project->delete();
             return response()->json([
                 'status' => 200,
@@ -268,7 +343,7 @@ class ProjectController extends Controller
         }else {
             return response()->json([
                 'status' => 404,
-                'message' => 'Project Not Found',
+                'message' => 'Project not found',
             ], 404);
         }
     }

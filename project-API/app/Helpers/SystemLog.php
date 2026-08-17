@@ -18,7 +18,7 @@ if (!function_exists('system_log')) {
             'model_id' => $modelId,
             'description' => $description,
             'data' => $data,
-            'ip_adresse' => request()->ip(),
+            'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
         ]);
     }

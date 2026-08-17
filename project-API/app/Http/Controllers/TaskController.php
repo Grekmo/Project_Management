@@ -122,6 +122,17 @@ class TaskController extends Controller
                 'project_id' => $request->project_id,
                 'assigned_to' => $request->assigned_to,
             ]);
+            system_log(
+                'created',
+                'Task',
+                $task->id,
+                'Created task: ' . $task->name,
+                [
+                    'project_id' => $task->project_id,
+                    'assigned_to' => $task->assigned_to,
+                    'status' => $task->status,
+                ]
+            );
 
             $project = Project::find($request->project_id);
             $project->employees()->syncWithoutDetaching($request->assigned_to); // syncWithoutDetaching (Ida makan l employee zido wila kan khlih)
@@ -206,6 +217,7 @@ class TaskController extends Controller
 
         if (auth()->user()->role === 'employee') {
             $this->authorize('updateStatus', $task);
+            $oldStatus = $task->status;
             $validator = Validator::make($request->all(),[
                 'status' => 'required|in:pending,in_progress,completed',
             ]);
@@ -216,6 +228,16 @@ class TaskController extends Controller
                 ], 422);
             }else{
                 $task->update(['status' => $request->status,]);
+                system_log(
+                    'status_updated',
+                    'Task',
+                    $task->id,
+                    'Updated task status: ' . $task->name,
+                    [
+                        'old_status' => $oldStatus,
+                        'new_status' => $task->status,
+                    ]
+                );
             }
             return response()->json([
                 'status' => 200,
@@ -225,6 +247,14 @@ class TaskController extends Controller
         }else //if (auth()->user()->role === 'admin') {
         {
             $this->authorize('update', $task);
+            $oldData = $task->only([
+                'name',
+                'description',
+                'status',
+                'end_date',
+                'project_id',
+                'assigned_to',
+            ]);
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'required|string|max:1000',
@@ -250,6 +280,23 @@ class TaskController extends Controller
                     'project_id' => $request->project_id,
                     'assigned_to' => $request->assigned_to,
                 ]);
+                system_log(
+                    'updated',
+                    'Task',
+                    $task->id,
+                    'Updated task: ' . $task->name,
+                    [
+                        'old' => $oldData,
+                        'new' => $task->only([
+                            'name',
+                            'description',
+                            'status',
+                            'end_date',
+                            'project_id',
+                            'assigned_to',
+                        ]),
+                    ]
+                );
                 return response()->json([
                     'status' => 200,
                     'message' => 'Task updated successfully',
@@ -267,6 +314,17 @@ class TaskController extends Controller
         $task = Task::find($id);
         if ($task) {
             $this->authorize('delete', $task);
+            system_log(
+                'deleted',
+                'Task',
+                $task->id,
+                'Deleted task: ' . $task->name,
+                [
+                    'project_id' => $task->project_id,
+                    'assigned_to' => $task->assigned_to,
+                    'status' => $task->status,
+                ]
+            );
             $task->delete();
             return response()->json([
                 'status' => 200,

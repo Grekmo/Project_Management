@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+//use App\Models\Project;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -16,6 +17,7 @@ class UserController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', User::class);
         $users = User::with(['projects', 'tasks'])->get();
         if ($users) {
             return response()->json([
@@ -32,6 +34,7 @@ class UserController extends Controller
 
     public function managers() {
 
+        $this->authorize('getManagers', User::class);
         $managers = User::where('role', 'manager')->select('id', 'name')->get(); //select('id', 'name') katjib ghir had l columns
         if ($managers->isEmpty()) {
             return response()->json([
@@ -48,6 +51,7 @@ class UserController extends Controller
 
     public function teams() {
 
+        $this->authorize('managerViewTeams', User::class);
         $manager = auth()->user();
         $teams = User::where('role', 'employee')->whereHas('projects', function ($query) use ($manager) {
             //User::whereHas('projects', function ($query) use ($manager) Laravel kat3tik imkaniyaa t7ded Chert 3la l projects li f whereHas
@@ -66,6 +70,7 @@ class UserController extends Controller
 
     public function teamMembers() {
 
+        $this->authorize('employeeTeamMembers', User::class);
         $employee = auth()->user();
         //dd($employee->id);
         //3tini l Users li 3endhom relation projects katwafe9 l condition li ghadi n3tik f function li hiya ($query).
@@ -106,6 +111,7 @@ class UserController extends Controller
     public function managerShow(string $id)
     {
         $user = User::findOrFail($id);
+        $this->authorize('managerViewEmployee', $user);
 
         // Projects li had manager howa manager fihom
         $projects = $user->projects()->where('manager_id', auth()->id())->with('tasks')->get();
@@ -130,6 +136,7 @@ class UserController extends Controller
 
     public function employeesList() {
 
+        $this->authorize('employeeList', User::class);
         $employees = User::where('role', 'employee')->get();
         if ($employees->isEmpty()) {
             return response()->json([
@@ -150,7 +157,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        //
+        $this->authorize('create', User::class);
     }
 
     /**
@@ -158,6 +165,7 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $this->authorize('create', User::class);
         //request = les donnees li jayin men frontend w kandiro lihom l validation
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -185,6 +193,17 @@ class UserController extends Controller
                 'description' => $request->description,
                 'password' => $request->password,// Hash kayan f USER MODEL 
             ]);
+            system_log(
+                'Created',
+                'User',
+                $user->id,
+                'Created new user: ' . $user->name,
+                [
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                ]
+            );
             if ($user) {
                 return response()->json([
                     'status' => 200,
@@ -267,6 +286,14 @@ class UserController extends Controller
             ], 422);
         }else{
             $user = User::find($id);
+            $oldData = $user->only([
+                'name',
+                'cin',
+                'email',
+                'phone',
+                'role',
+                'description',
+            ]);
             $user->update([
                 'name' => $request->name,
                 'cin' => $request->cin,
@@ -282,7 +309,26 @@ class UserController extends Controller
                 $user->save();
                 //filled('password') ydir bycrypt l password ila ja mn request , ila la kayb9a l password l9dim 
             }
-        }if ($user) {
+            $newData = $user->only([
+                'name',
+                'cin',
+                'email',
+                'phone',
+                'role',
+                'description',
+            ]);
+            system_log(
+                'updated',
+                'User',
+                $user->id,
+                'Updated user: ' . $user->name,
+                [
+                    'old' => $oldData,
+                    'new' => $newData,
+                ]
+            );
+        }
+        if ($user) {
             return response()->json([
                 'status' => 200,
                 'message' => 'User updated successfully',
@@ -303,6 +349,17 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if ($user) {
+            system_log(
+            'deleted',
+            'User',
+            $user->id,
+            'Deleted user: ' . $user->name,
+            [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+            ]
+        );
             $user->delete();
             return response()->json([
                 'status' => 200,
