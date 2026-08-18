@@ -216,9 +216,8 @@ class ProjectController extends Controller
                     'start_date',
                     'end_date',
                     'manager_id',
-                    'employee_ids' => $project->employees()->pluck('id')->toArray(),
                 ]);
-                $oldData['employee_ids'] = $project->employees()->pluck('id')->toArray(); // Katjib l ids dyal employees li m3a had project
+                $oldData['employee_ids'] = $project->employees()->pluck('users.id')->toArray(); // Katjib l ids dyal employees li m3a had project
 
                 $project->update([
                     'name' => $request->name,
@@ -239,7 +238,7 @@ class ProjectController extends Controller
                     'end_date',
                     'manager_id',
                 ]);
-                $newData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+                $newData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
 
                 system_log(
                     'updated',
@@ -276,7 +275,7 @@ class ProjectController extends Controller
                     'status',
                     'description',
                 ]);
-                $oldData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+                $oldData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
 
                 $project->update([
                     'status' => $request->status,
@@ -292,7 +291,7 @@ class ProjectController extends Controller
                     'status',
                     'description',
                 ]);
-                $newData['employee_ids'] = $project->employees()->pluck('id')->toArray();
+                $newData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
                 
                 system_log(
                     'updated',
@@ -332,7 +331,7 @@ class ProjectController extends Controller
                 [
                     'status' => $project->status,
                     'manager_id' => $project->manager_id,
-                    'employee_ids' => $project->employees()->pluck('id')->toArray(),
+                    'employee_ids' => $project->employees()->pluck('users.id')->toArray(),
                 ]
             );
             $project->delete();
