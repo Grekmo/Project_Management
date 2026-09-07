@@ -18,22 +18,22 @@ const router = createRouter({
       component: MainLayout,
       meta: { role: 'admin' },
       children: [
-        { path: 'dashboard', name: 'admin.dashboard', component: () => import('@/views/admin/Dashboard.vue') },
+        { path: 'dashboard', name: 'admin.dashboard', component: () => import('@/views/admin/Dashboard.vue'), meta: { title: 'Dashboard' } },
         //  ************* PROJECTS
-        { path: 'projects', name: 'admin.projects', component:() => import('@/views/admin/Projects/Index.vue') },
-        { path: 'projects/create', name: 'admin.create.projects', component:() => import('@/views/admin/Projects/Create.vue') },
-        { path: 'projects/:id/edit', name: 'admin.edit.projects', component:() => import('@/views/admin/Projects/Edit.vue') },
-        { path: 'projects/:id/show', name: 'admin.show.projects', component:() => import('@/views/admin/Projects/Show.vue') },
+        { path: 'projects', name: 'admin.projects', component:() => import('@/views/admin/Projects/Index.vue'), meta: { title: 'Projects' } },
+        { path: 'projects/create', name: 'admin.create.projects', component:() => import('@/views/admin/Projects/Create.vue'), meta: { title: 'Create Project' } },
+        { path: 'projects/:id/edit', name: 'admin.edit.projects', component:() => import('@/views/admin/Projects/Edit.vue'), meta: { title: 'Edit Project' } },
+        { path: 'projects/:id/show', name: 'admin.show.projects', component:() => import('@/views/admin/Projects/Show.vue'), meta: { title: 'Project Details' } },
         // ************** USERS
-        { path: 'users', name: 'admin.users', component: () => import('@/views/admin/Users/Index.vue')},
-        { path: 'users/create', name: 'admin.create.users', component:() => import('@/views/admin/Users/Create.vue') },
-        { path: 'users/:id/edit', name: 'admin.edit.users', component:() => import('@/views/admin/Users/Edit.vue') },
-        { path: 'users/:id/show', name: 'admin.show.users', component:() => import('@/views/admin/Users/Show.vue') },
+        { path: 'users', name: 'admin.users', component: () => import('@/views/admin/Users/Index.vue'), meta: { title: 'Users' } },
+        { path: 'users/create', name: 'admin.create.users', component:() => import('@/views/admin/Users/Create.vue'), meta: { title: 'Create User' } },
+        { path: 'users/:id/edit', name: 'admin.edit.users', component:() => import('@/views/admin/Users/Edit.vue'), meta: { title: 'Edit User' } },
+        { path: 'users/:id/show', name: 'admin.show.users', component:() => import('@/views/admin/Users/Show.vue'), meta: { title: 'User Details' } },
         // *************  TASKS
-        { path: 'tasks', name: 'admin.tasks', component: ()=> import('@/views/admin/Tasks/Index.vue')},
-        { path: 'tasks/create', name: 'admin.create.tasks', component:() => import('@/views/admin/Tasks/Create.vue') },
-        { path: 'tasks/:id/edit', name: 'admin.edit.tasks', component:() => import('@/views/admin/Tasks/Edit.vue') },
-        { path: 'tasks/:id/show', name: 'admin.show.tasks', component:() => import('@/views/admin/Tasks/Show.vue') },
+        { path: 'tasks', name: 'admin.tasks', component: ()=> import('@/views/admin/Tasks/Index.vue'), meta: { title: 'Tasks' } },
+        { path: 'tasks/create', name: 'admin.create.tasks', component:() => import('@/views/admin/Tasks/Create.vue'), meta: { title: 'Create Task' } },
+        { path: 'tasks/:id/edit', name: 'admin.edit.tasks', component:() => import('@/views/admin/Tasks/Edit.vue'), meta: { title: 'Edit Task' } },
+        { path: 'tasks/:id/show', name: 'admin.show.tasks', component:() => import('@/views/admin/Tasks/Show.vue'), meta: { title: 'Task Details' } },
 
       ],
     },
@@ -42,19 +42,19 @@ const router = createRouter({
       component: MainLayout,
       meta: { role : 'manager'},
       children: [
-        { path: 'dashboard', name: 'manager.dashboard', component: ()=> import('@/views/manager/Dashboard.vue') },
+        { path: 'dashboard', name: 'manager.dashboard', component: ()=> import('@/views/manager/Dashboard.vue'), meta: { title: 'Dashboard' } },
         //  ************* PROJECTS
         { path: 'projects', name: 'manager.myProjects', component:() => import('@/views/manager/Projects/Index.vue'), meta: { title: 'My Projects' }},
-        { path: 'projects/:id/edit', name: 'manager.edit.projects', component:() => import('@/views/manager/Projects/Edit.vue') },
-        { path: 'projects/:id/show', name: 'manager.show.projects', component:() => import('@/views/manager/Projects/Show.vue') },
+        { path: 'projects/:id/edit', name: 'manager.edit.projects', component:() => import('@/views/manager/Projects/Edit.vue'), meta: { title: 'Edit Project' } },
+        { path: 'projects/:id/show', name: 'manager.show.projects', component:() => import('@/views/manager/Projects/Show.vue'), meta: { title: 'Project Details' } },
         // *************  TASKS
         { path: 'tasks', name: 'manager.tasks', component: ()=> import('@/views/manager/Tasks/Index.vue') , meta: { title: 'My Tasks' } },
-        { path: 'tasks/create', name: 'manager.create.tasks', component:() => import('@/views/manager/Tasks/Create.vue') },
-        { path: 'tasks/:id/edit', name: 'manager.edit.tasks', component:() => import('@/views/manager/Tasks/Edit.vue') },
-        { path: 'tasks/:id/show', name: 'manager.show.tasks', component:() => import('@/views/manager/Tasks/Show.vue') },
+        { path: 'tasks/create', name: 'manager.create.tasks', component:() => import('@/views/manager/Tasks/Create.vue') , meta: { title: 'Create Task' } },
+        { path: 'tasks/:id/edit', name: 'manager.edit.tasks', component:() => import('@/views/manager/Tasks/Edit.vue'), meta: { title: 'Edit Task' } },
+        { path: 'tasks/:id/show', name: 'manager.show.tasks', component:() => import('@/views/manager/Tasks/Show.vue'), meta: { title: 'Task Details' } },
         // *************  USERS
         { path: 'team', name: 'manager.team', component: ()=> import('@/views/manager/Users/Index.vue') , meta: { title: 'My Team' } },
-        { path: 'user/:id/show', name: 'manager.show.users', component:() => import('@/views/manager/Users/Show.vue') },
+        { path: 'user/:id/show', name: 'manager.show.users', component:() => import('@/views/manager/Users/Show.vue'), meta: { title: 'User Details' } },
       ],
     },
     {
@@ -62,20 +62,20 @@ const router = createRouter({
       component: MainLayout,
       meta: { role : 'employee'},
       children: [
-        { path: 'dashboard', name: 'employee.dashboard', component: ()=> import('@/views/employee/Dashboard.vue') },
+        { path: 'dashboard', name: 'employee.dashboard', component: ()=> import('@/views/employee/Dashboard.vue'), meta: { title: 'Dashboard' } },
        
         //  ************* PROJECTS
         { path: 'projects', name: 'employee.myProjects', component: ()=> import('@/views/employee/Projects/Index.vue') , meta: { title: 'My Projects' } },
-        { path: 'projects/:id/show', name: 'employee.show.projects', component: ()=> import('@/views/employee/Projects/Show.vue') },
+        { path: 'projects/:id/show', name: 'employee.show.projects', component: ()=> import('@/views/employee/Projects/Show.vue'), meta: { title: 'Project Details' } },
 
         //**************  TASKS
         { path: 'tasks', name: 'employee.myTasks', component: ()=> import('@/views/employee/Tasks/Index.vue') , meta: { title: 'My Tasks' } },
-        { path: 'tasks/:id/show', name: 'employee.show.tasks', component: ()=> import('@/views/employee/Tasks/Show.vue') },
-        { path: 'tasks/:id/edit', name: 'employee.edit.tasks', component: ()=> import('@/views/employee/Tasks/Edit.vue') },
+        { path: 'tasks/:id/show', name: 'employee.show.tasks', component: ()=> import('@/views/employee/Tasks/Show.vue'), meta: { title: 'Task Details' } },
+        { path: 'tasks/:id/edit', name: 'employee.edit.tasks', component: ()=> import('@/views/employee/Tasks/Edit.vue'), meta: { title: 'Edit Task' } },
 
         // *************  USERS
         { path: 'teamMember', name: 'employee.teamMember', component: ()=> import('@/views/employee/Users/Index.vue') , meta: { title: 'My Team Memebers' } },
-        { path: 'member/:id/show', name: 'employee.show.users', component: ()=> import('@/views/employee/Users/Show.vue') },
+        { path: 'member/:id/show', name: 'employee.show.users', component: ()=> import('@/views/employee/Users/Show.vue'), meta: { title: 'User Details' } },
       ],
     },
     {
