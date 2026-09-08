@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
@@ -53,6 +54,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::apiResource('tasks', TaskController::class);
     // projects (CRUD full)
     Route::apiResource('projects', ProjectController::class);
+    // system logs
+    Route::get('/system-logs', [SystemLogController::class, 'index']);
+    Route::get('/system-logs/{id}', [SystemLogController::class, 'show']);
 });
 
 /*------------- ROLE MANAGER -------------- */

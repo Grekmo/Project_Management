@@ -194,7 +194,7 @@ class UserController extends Controller
                 'password' => $request->password,// Hash kayan f USER MODEL 
             ]);
             system_log(
-                'Created',
+                'created',
                 'User',
                 $user->id,
                 'Created new user: ' . $user->name,

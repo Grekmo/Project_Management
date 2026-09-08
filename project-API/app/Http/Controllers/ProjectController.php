@@ -123,8 +123,12 @@ class ProjectController extends Controller
                 'Created project: ' . $project->name,
                 [
                     'project_id' => $project->id,
+
                     'manager_id' => $project->manager_id,
+                    'manager_name' => $project->manager?->name,
+
                     'employee_ids' => $request->employee_ids ?? [],
+                    'employee_names' => $project->employees()->pluck('users.name')->toArray(),
                 ]
             );
         }
@@ -217,7 +221,8 @@ class ProjectController extends Controller
                     'end_date',
                     'manager_id',
                 ]);
-                $oldData['employee_ids'] = $project->employees()->pluck('users.id')->toArray(); // Katjib l ids dyal employees li m3a had project
+                $oldData['manager_name'] = $project->manager?->name;
+                $oldData['employee_names'] = $project->employees()->pluck('users.name')->toArray(); // Katjib l ids dyal employees li m3a had project
 
                 $project->update([
                     'name' => $request->name,
@@ -238,8 +243,8 @@ class ProjectController extends Controller
                     'end_date',
                     'manager_id',
                 ]);
-                $newData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
-
+                $newData['manager_name'] = $project->manager?->name;
+                $newData['employee_names'] = $project->employees()->pluck('users.name')->toArray();
                 system_log(
                     'updated',
                     'Project',
@@ -275,7 +280,7 @@ class ProjectController extends Controller
                     'status',
                     'description',
                 ]);
-                $oldData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
+                $oldData['employee_names'] = $project->employees()->pluck('users.name')->toArray();
 
                 $project->update([
                     'status' => $request->status,
@@ -291,7 +296,7 @@ class ProjectController extends Controller
                     'status',
                     'description',
                 ]);
-                $newData['employee_ids'] = $project->employees()->pluck('users.id')->toArray();
+                $newData['employee_names'] = $project->employees()->pluck('users.name')->toArray();
                 
                 system_log(
                     'updated',
@@ -330,8 +335,8 @@ class ProjectController extends Controller
                 'Deleted project: ' . $project->name,
                 [
                     'status' => $project->status,
-                    'manager_id' => $project->manager_id,
-                    'employee_ids' => $project->employees()->pluck('users.id')->toArray(),
+                    'manager_name' => $project->manager?->name,
+                    'employee_names' => $project->employees()->pluck('users.name')->toArray(),
                 ]
             );
             $project->delete();

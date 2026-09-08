@@ -129,7 +129,11 @@ class TaskController extends Controller
                 'Created task: ' . $task->name,
                 [
                     'project_id' => $task->project_id,
+                    'project_name' => $task->project?->name,
+
                     'assigned_to' => $task->assigned_to,
+                    'assigned_to_name' => $task->employee?->name,
+
                     'status' => $task->status,
                 ]
             );
@@ -247,14 +251,14 @@ class TaskController extends Controller
         }else //if (auth()->user()->role === 'admin') {
         {
             $this->authorize('update', $task);
-            $oldData = $task->only([
-                'name',
-                'description',
-                'status',
-                'end_date',
-                'project_id',
-                'assigned_to',
-            ]);
+            $oldData = [
+                'name' => $task->name,
+                'description' => $task->description,
+                'status' => $task->status,
+                'end_date' => $task->end_date,
+                'project_name' => $task->project?->name,
+                'assigned_to_name' => $task->employee?->name,
+            ];
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'required|string|max:1000',
@@ -280,6 +284,14 @@ class TaskController extends Controller
                     'project_id' => $request->project_id,
                     'assigned_to' => $request->assigned_to,
                 ]);
+                $newData = [
+                    'name' => $task->name,
+                    'description' => $task->description,
+                    'status' => $task->status,
+                    'end_date' => $task->end_date,
+                    'project_name' => $task->project?->name,
+                    'assigned_to_name' => $task->employee?->name,
+                ];
                 system_log(
                     'updated',
                     'Task',
@@ -287,14 +299,7 @@ class TaskController extends Controller
                     'Updated task: ' . $task->name,
                     [
                         'old' => $oldData,
-                        'new' => $task->only([
-                            'name',
-                            'description',
-                            'status',
-                            'end_date',
-                            'project_id',
-                            'assigned_to',
-                        ]),
+                        'new' => $newData,
                     ]
                 );
                 return response()->json([
@@ -321,7 +326,11 @@ class TaskController extends Controller
                 'Deleted task: ' . $task->name,
                 [
                     'project_id' => $task->project_id,
+                    'project_name' => $task->project?->name,
+
                     'assigned_to' => $task->assigned_to,
+                    'assigned_to_name' => $task->employee?->name,
+
                     'status' => $task->status,
                 ]
             );
@@ -330,7 +339,7 @@ class TaskController extends Controller
                 'status' => 200,
                 'message' => 'Task deleted successfully',
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 404,
                 'message' => 'Task not found',

@@ -34,7 +34,9 @@ const router = createRouter({
         { path: 'tasks/create', name: 'admin.create.tasks', component:() => import('@/views/admin/Tasks/Create.vue'), meta: { title: 'Create Task' } },
         { path: 'tasks/:id/edit', name: 'admin.edit.tasks', component:() => import('@/views/admin/Tasks/Edit.vue'), meta: { title: 'Edit Task' } },
         { path: 'tasks/:id/show', name: 'admin.show.tasks', component:() => import('@/views/admin/Tasks/Show.vue'), meta: { title: 'Task Details' } },
-
+        // *************  SYSTEM LOGS
+        { path: 'logs', name: 'admin.logs', component: ()=> import('@/views/admin/Logs/Index.vue'), meta: { title: 'System Logs' } },
+        { path: 'logs/:id/show', name: 'admin.show.systemlogs', component:() => import('@/views/admin/Logs/Show.vue'), meta: { title: 'Log Details' } },
       ],
     },
     {

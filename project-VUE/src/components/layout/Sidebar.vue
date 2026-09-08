@@ -120,6 +120,7 @@
             { label: 'Projects' , icon:'bi bi-folder2-open', routeName: 'admin.projects'},
             { label: 'Tasks' , icon:'bi bi-list-task', routeName: 'admin.tasks'},
             { label: 'Users' , icon:'bi bi-people', routeName: 'admin.users'},
+            { label: 'System Logs' , icon:'bi bi-journal-text', routeName: 'admin.logs'},
           ]
         } else if (this.user.role === 'manager') {
           this.menu = [

@@ -235,7 +235,9 @@
             </div>
         </div>
     </div>
+
     <!-- Task Modal -->
+     
     <div class="modal fade show" v-if="showTaskModal" style="display:block;background:rgba(0,0,0,.5)">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content border-0 shadow-lg rounded-4">
