@@ -202,6 +202,8 @@ class UserController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'role' => $user->role,
+                    'cin' => $user->cin,
+                    'phone' => $user->phone,
                 ]
             );
             if ($user) {
@@ -349,6 +351,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
         if ($user) {
+            $this->authorize('delete', $user);
             system_log(
             'deleted',
             'User',
@@ -358,6 +361,9 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'role' => $user->role,
+                'cin' => $user->cin,
+                'phone' => $user->phone,
+                'description' => $user->description,
             ]
         );
             $user->delete();

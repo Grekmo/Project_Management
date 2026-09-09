@@ -9,8 +9,8 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <ul v-if="Object.keys(errorList).length > 0" class="mb-4">
-                        <li v-for="(error,index) in errorList" :key="index" class="text-danger">
+                    <ul v-if="Object.keys(projectErrorList).length > 0" class="mb-4">
+                        <li v-for="(error,index) in projectErrorList" :key="index" class="text-danger">
                             {{ error[0] }}
                         </li>
                     </ul>
@@ -259,8 +259,8 @@
                 <!-- Body -->
                 <div class="modal-body p-4">
                     <div class="row">
-                        <ul v-if="Object.keys(errorList).length > 0" class="mb-4">
-                            <li v-for="(error,index) in errorList" :key="index" class="text-danger">
+                        <ul v-if="Object.keys(taskErrorList).length > 0" class="mb-4">
+                            <li v-for="(error,index) in taskErrorList" :key="index" class="text-danger">
                                 {{ error[0] }}
                             </li>
                         </ul>
@@ -380,7 +380,8 @@
     export default {
         data() {
             return {
-                errorList: {},
+                projectErrorList: {},
+                taskErrorList: {},
                 projectID: '',
                 managers: [],
                 employees: [],
@@ -432,6 +433,7 @@
 
             openTaskModal() {
                 this.isEditingTask = false;
+                this.taskErrorList = {};
                 this.task = {
                     id: null,
                     name: '',
@@ -446,6 +448,7 @@
 
             openEditTaskModal(task){
                 this.isEditingTask = true;
+                this.taskErrorList = {};
                 this.task = {
                     id: task.id,
                     name: task.name,
@@ -469,7 +472,7 @@
                 })
                 .catch((error) => {
                     toast.error(error.response.data.message);
-                    this.errorList = error.response.data.errors;
+                    this.taskErrorList = error.response.data.errors;
                 });
             },
             
@@ -499,7 +502,7 @@
                 .catch( error => {
                     console.log(error.response.data);
                     toast.error('Failed to update task.');
-                    this.errorList = error.response.data.errors;
+                    this.taskErrorList = error.response.data.errors;
                 })
             },
 
@@ -548,13 +551,13 @@
                 api.put(`/projects/${projectID}`, this.projects)
                 .then( res => {
                     console.log(res.data);
-                    this.errorList = {}; 
+                    this.projectErrorList = {}; 
                     toast.success(res.data.message);
                     this.$router.push( {name: 'admin.projects' });
                 })
                 .catch(error => {
                     if (error.response && error.response.status === 422) {
-                        this.errorList = error.response.data.errors;
+                        this.projectErrorList = error.response.data.errors;
                         toast.error('Please correct the errors in the form.');
                     }else{
                         console.log(error.response);
