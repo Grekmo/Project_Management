@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AIController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManagerDashboardController;
@@ -37,7 +38,11 @@ use Illuminate\Support\Facades\Route;
 });*/
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->post('/ai/ask', [AIController::class, 'ask']);
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/projects', [ProjectController::class, 'index']);
+});
 
 /*------------- ROLE ADMIN -------------- */
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
@@ -53,7 +58,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
     Route::apiResource('tasks', TaskController::class);
     // projects (CRUD full)
-    Route::apiResource('projects', ProjectController::class);
+    Route::apiResource('projects', ProjectController::class)->except(['index']);
     // system logs
     Route::get('/system-logs', [SystemLogController::class, 'index']);
     Route::get('/system-logs/{id}', [SystemLogController::class, 'show']);

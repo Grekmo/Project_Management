@@ -121,6 +121,7 @@
             { label: 'Tasks' , icon:'bi bi-list-task', routeName: 'admin.tasks'},
             { label: 'Users' , icon:'bi bi-people', routeName: 'admin.users'},
             { label: 'System Logs' , icon:'bi bi-journal-text', routeName: 'admin.logs'},
+            { label: 'AI Assistant', icon:'bi bi-robot', routeName: 'ai.assistant'},
           ]
         } else if (this.user.role === 'manager') {
           this.menu = [
@@ -128,6 +129,7 @@
             { label: 'My Projects' , icon:'bi bi-folder2-open', routeName: 'manager.myProjects'}, // /*label: 'Projects'*/ deja f INDEX.JS => meta { title: 'myProjects'} donc maghan7tajoch label
             { label: 'Tasks' , icon:'bi bi-list-task', routeName: 'manager.tasks'},
             { label: 'My Team'  , icon:'bi bi-people', routeName: 'manager.team'},
+            { label: 'AI Assistant', icon:'bi bi-robot', routeName: 'ai.assistant'},
           ]
         } else if (this.user.role === 'employee') {
           this.menu = [
@@ -135,6 +137,7 @@
             { label: 'My Projects' , icon:'bi bi-folder2-open', routeName: 'employee.myProjects'},
             { label: 'My Tasks' , icon:'bi bi-list-task', routeName : 'employee.myTasks'},
             { label: 'Team Members'  , icon:'bi bi-people', routeName: 'employee.teamMember'},
+            { label: 'AI Assistant', icon:'bi bi-robot', routeName: 'ai.assistant'},
           ]
         }
       }

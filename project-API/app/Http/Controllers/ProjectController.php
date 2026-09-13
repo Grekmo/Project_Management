@@ -24,7 +24,7 @@ class ProjectController extends Controller
         }
         else{
             $projects = Project::whereHas('employees', function ($query) {
-                $query->where('id', auth()->user()->id);
+                $query->where('users.id', auth()->user()->id);
             })->with(['manager','tasks','employees'])->get();
         }
         //$projects = Project::with(['tasks', 'employees', 'manager'])->get(); //tasks/employees/manager --> Relations f Project Model

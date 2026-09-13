@@ -37,6 +37,8 @@ const router = createRouter({
         // *************  SYSTEM LOGS
         { path: 'logs', name: 'admin.logs', component: ()=> import('@/views/admin/Logs/Index.vue'), meta: { title: 'System Logs' } },
         { path: 'logs/:id/show', name: 'admin.show.systemlogs', component:() => import('@/views/admin/Logs/Show.vue'), meta: { title: 'Log Details' } },
+        // *************  AI ASSISTANT
+        //{ path: 'ai-assistant', name: 'admin.ai.assistant', component: ()=> import('@/views/admin/AIAssistant.vue'), meta: { title: 'AI Assistant' } },
       ],
     },
     {
@@ -57,6 +59,8 @@ const router = createRouter({
         // *************  USERS
         { path: 'team', name: 'manager.team', component: ()=> import('@/views/manager/Users/Index.vue') , meta: { title: 'My Team' } },
         { path: 'user/:id/show', name: 'manager.show.users', component:() => import('@/views/manager/Users/Show.vue'), meta: { title: 'User Details' } },
+        // *************  AI ASSISTANT
+        //{ path: 'ai-assistant', name: 'manager.ai.assistant', component: ()=> import('@/views/manager/AIAssistant.vue'), meta: { title: 'AI Assistant' } },
       ],
     },
     {
@@ -78,6 +82,21 @@ const router = createRouter({
         // *************  USERS
         { path: 'teamMember', name: 'employee.teamMember', component: ()=> import('@/views/employee/Users/Index.vue') , meta: { title: 'My Team Memebers' } },
         { path: 'member/:id/show', name: 'employee.show.users', component: ()=> import('@/views/employee/Users/Show.vue'), meta: { title: 'User Details' } },
+
+        // *************  AI ASSISTANT
+        //{ path: 'ai-assistant', name: 'employee.ai.assistant', component: ()=> import('@/views/employee/AIAssistant.vue'), meta: { title: 'AI Assistant' } },
+      ],
+    },
+    {
+      path: '/ai-assistant',
+      component: MainLayout,
+      children: [
+        {
+          path: '',
+          name: 'ai.assistant',
+          component: () => import('@/views/AI/AIAssistant.vue'),
+          meta: { title: 'AI Assistant' }
+        }
       ],
     },
     {
