@@ -1,6 +1,5 @@
 <template>
     <div class="ai-page">
-        <!-- Header -->
         <div class="mb-4">
             <h2 class="fw-bold mb-1">
                 <i class="bi bi-robot me-2"></i>
@@ -12,103 +11,200 @@
             </p>
         </div>
 
-        <!-- Project Selection -->
-        <div class="card border-0 shadow-sm rounded-4 mb-4">
-            <div class="card-body p-4">
-                <label class="form-label fw-semibold">
-                    Select a project
-                </label>
+        <div class="row g-4">
 
-                <select v-model="selectedProject" class="form-select">
-                    <option :value="null">
-                        All Projects
-                    </option>
+            <!-- Conversations -->
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm rounded-4">
 
-                    <option
-                        v-for="project in projects"
-                        :key="project.id"
-                        :value="project.id"
+                    <div class="card-header bg-white border-0 p-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="fw-bold mb-0">
+                                <i class="bi bi-chat-dots me-2"></i>
+                                Conversations
+                            </h5>
+
+                            <button
+                                class="btn btn-primary btn-sm"
+                                @click="newConversation"
+                            >
+                                <i class="bi bi-plus-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div
+                        v-for="conversation in conversations"
+                        :key="conversation.id"
+                        class="conversation-item"
+                        :class="{ 'conversation-active': conversation.id === conversation_id }"
                     >
-                        {{ project.name }}
-                    </option>
-                </select>
+                        <template v-if="editingConversationId === conversation.id">
 
-            </div>
-        </div>
+                            <input
+                                v-model="editingTitle"
+                                class="conversation-rename-input"
+                                @keyup.enter="renameConversation(conversation.id)"
+                                @keyup.esc="cancelRename"
+                                @click.stop
+                            >
 
+                            <button
+                                class="conversation-action"
+                                @click.stop="renameConversation(conversation.id)"
+                                title="Save"
+                            >
+                                <i class="bi bi-check-lg"></i>
+                            </button>
 
-        <!-- Chat -->
-        <div class="card border-0 shadow-sm rounded-4">
+                            <button
+                                class="conversation-delete"
+                                @click.stop="cancelRename"
+                                title="Cancel"
+                            >
+                                <i class="bi bi-x-lg"></i>
+                            </button>
 
-            <!-- Chat Header -->
-            <div class="card-header bg-white border-0 p-4">
-                <h5 class="fw-bold mb-0">
-                    <i class="bi bi-chat-dots me-2"></i>
-                    Conversation
-                </h5>
-            </div>
+                        </template>
 
+                        <template v-else>
 
-            <!-- Messages -->
-            <div class="chat-container p-4">
-                <!-- Empty state -->
-                <div
-                    v-if="messages.length === 0 && !loading"
-                    class="empty-chat text-center text-muted"
-                >
-                    <i class="bi bi-robot fs-1 d-block mb-3"></i>
-                    <p class="mb-0">
-                        Select a project and ask the AI something about it.
-                    </p>
-                </div>
+                            <button
+                                class="conversation-title"
+                                @click="selectConversation(conversation.id)"
+                            >
+                                <i class="bi bi-chat-left-text me-2"></i>
+                                <span>{{ conversation.title }}</span>
+                            </button>
 
+                            <button
+                                class="conversation-action"
+                                @click.stop="startRename(conversation)"
+                                title="Rename conversation"
+                            >
+                                <i class="bi bi-pencil"></i>
+                            </button>
 
-                <!-- Messages -->
-                <div v-for="(message, index) in messages":key="index" class="message-wrapper mb-3"
-                    :class="message.role === 'user' ? 'user-message' : 'ai-message'">
-                    <div class="message">
-                        <div class="message-header mb-1">
-                            <strong>
-                                {{ message.role === 'user' ? 'You' : 'AI Assistant'}}
-                            </strong>
-                        </div>
+                            <button
+                                class="conversation-delete"
+                                @click.stop="deleteConversation(conversation.id)"
+                                title="Delete conversation"
+                            >
+                                <i class="bi bi-trash3"></i>
+                            </button>
 
-                        <div class="message-text">
-                            {{ message.content }}
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- Loading -->
-                <div  v-if="loading" class="ai-message mb-3">
-                    <div class="message">
-                        <strong>AI Assistant</strong>
-                        <div class="mt-2">
-                            <span
-                                class="spinner-border spinner-border-sm me-2"
-                            ></span>
-                            Thinking...
-                        </div>
+                        </template>
                     </div>
                 </div>
             </div>
 
-            <!-- Message Input -->
-            <div class="card-footer bg-white border-0 p-4">
-                <div class="input-group">
-                    <input
-                        v-model="message"
-                        type="text"
-                        class="form-control"
-                        placeholder="Ask something about this project..."
-                        @keyup.enter="sendMessage"
-                    />
+            <!-- Chat -->
+            <div class="col-md-9">
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-header bg-white border-0 p-4">
+                        <h5 class="fw-bold mb-0">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            Conversation
+                        </h5>
+                    </div>
 
-                    <button class="btn btn-primary px-4" @click="sendMessage" :disabled="loading || !message.trim()">
-                        <i class="bi bi-send me-2"></i>
-                        Send
-                    </button>
+                    <!-- Project -->
+                    <div class="card-body border-bottom p-4">
+                        <label class="form-label fw-semibold">
+                            Select a project
+                        </label>
+
+                        <select
+                            v-model="selectedProject"
+                            class="form-select"
+                        >
+                            <option :value="null">
+                                All Projects
+                            </option>
+
+                            <option
+                                v-for="project in projects"
+                                :key="project.id"
+                                :value="project.id"
+                            >
+                                {{ project.name }}
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <!-- Messages -->
+                    <div class="chat-container p-4">
+                        <div
+                            v-if="messages.length === 0 && !loading"
+                            class="empty-chat text-center text-muted"
+                        >
+                            <i class="bi bi-robot fs-1 d-block mb-3"></i>
+                            <p class="mb-0">
+                                Select a project and ask the AI something about it.
+                            </p>
+                        </div>
+
+                        <div
+                            v-for="(msg, index) in messages"
+                            :key="index"
+                            class="message-wrapper mb-3"
+                            :class="msg.role === 'user' ? 'user-message' : 'ai-message'"
+                        >
+                            <div class="message">
+                                <div class="message-header mb-1">
+                                    <strong>
+                                        {{ msg.role === 'user'
+                                            ? 'You'
+                                            : 'AI Assistant'
+                                        }}
+                                    </strong>
+                                </div>
+                                <div class="message-text">
+                                    {{ msg.content }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            v-if="loading"
+                            class="ai-message mb-3"
+                        >
+                            <div class="message">
+                                <strong>AI Assistant</strong>
+                                <div class="mt-2">
+                                    <span
+                                        class="spinner-border spinner-border-sm me-2"
+                                    ></span>
+
+                                    Thinking...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Input -->
+                    <div class="card-footer bg-white border-0 p-4">
+                        <div class="input-group">
+                            <input
+                                v-model="message"
+                                type="text"
+                                class="form-control"
+                                placeholder="Ask something about this project..."
+                                @keyup.enter="sendMessage"
+                            />
+
+                            <button
+                                class="btn btn-primary px-4"
+                                @click="sendMessage"
+                                :disabled="loading || !message.trim()"
+                            >
+                                <i class="bi bi-send me-2"></i>
+                                Send
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -118,33 +214,58 @@
 
 <script>
     import api from '@/services/axios.js';
+
     export default {
+
         data() {
             return {
-                // Projects displayed in the select
                 projects: [],
+                conversations: [],
+                conversation_id: null,
                 selectedProject: null,
                 message: '',
-                // Chat messages
                 messages: [],
-                // AI loading state
-                loading: false
+                loading: false,
+                editingConversationId: null,
+                editingTitle: '',
             }
         },
 
+
         mounted() {
             this.loadProjects();
+            this.loadConversations();
         },
+
 
         methods: {
 
-            // Get projects for the current user
-            // await is used to wait for the API response before continuing
-            // await must be used inside an async function 
+            startRename(conversation) {
+                this.editingConversationId = conversation.id;
+                this.editingTitle = conversation.title;
+            },
+
+            cancelRename() {
+                this.editingConversationId = null;
+                this.editingTitle = '';
+            },
+            async renameConversation(id, title) {
+                if (!this.editingTitle.trim()) {
+                    return;
+                }
+                try {
+                    const response = await api.put(`/ai/conversation/${id}`, { title: this.editingTitle.trim() });
+                    console.log(response.data.message);
+                    this.cancelRename();
+                    await this.loadConversations();
+                }catch (error) {
+                    console.error('Error renaming conversation:', error);
+                }
+            },
+
             async loadProjects() {
                 try {
                     const response = await api.get('/projects');
-                    console.log('PROJECTS RESPONSE:', response.data);
                     this.projects = response.data.projects;
                 } catch (error) {
                     console.error(
@@ -154,84 +275,174 @@
                 }
             },
 
-            // Send message to AI
+            async loadConversations() {
+                try {
+                    const response = await api.get('/ai/conversations');
+                    this.conversations = response.data.conversations;
+                } catch (error) {
+                    console.error(
+                        'Error loading conversations:',
+                        error
+                    );
+                }
+            },
+
+            newConversation() {
+                this.conversation_id = null;
+                this.messages = [];
+                this.message = '';
+            },
+
+            async selectConversation(id) {
+                console.log('Selected conversation:', id);
+
+                try {
+                    const response = await api.get(`/ai/conversation/${id}`);
+                    
+                    console.log('Conversation response:', response.data);
+                    this.conversation_id = response.data.conversation.id;
+                    this.messages = response.data.messages.map(mssg => ({
+                        role : mssg.sender,
+                        content : mssg.message,
+                    }))
+                }catch (error) {
+                    console.error('Error loading conversation:', error);
+                }
+            },
+
             async sendMessage() {
 
-                if(!this.message.trim() )//trim() bach y7iyed les espaces avant et apres le message, donc si message vide, return
-                {
+                if (!this.message.trim()) {
                     return;
                 }
+
                 const userMessage = this.message.trim();
-                // Add user's message to chat
+
                 this.messages.push({
                     role: 'user',
                     content: userMessage
                 });
-                // Clear input
+
                 this.message = '';
-                // Start loading
                 this.loading = true;
 
                 try {
                     const data = {
                         message: userMessage
                     };
-
                     if (this.selectedProject) {
                         data.project_id = this.selectedProject;
                     }
+                    if (this.conversation_id) {
+                        data.conversation_id = this.conversation_id;
+                    }
 
-                    const response = await api.post('/ai/ask', data);
+                    const response = await api.post('/ai/ask', data );
+                    
+                    this.conversation_id = response.data.conversation_id;
                     this.messages.push({
                         role: 'ai',
                         content: response.data.response
                     });
+                    // Refresh conversations
+                    await this.loadConversations();
 
-                } catch (error) 
-                {
+                } catch (error) {
                     console.error(
                         'AI Error:',
                         error.response?.data || error
                     );
+
                     this.messages.push({
                         role: 'ai',
                         content: 'Sorry, something went wrong while contacting the AI.'
                     });
+
                 } finally {
                     this.loading = false;
+                }
+            },
+
+            async deleteConversation(id) {
+                try {
+                    const response = await api.delete(`/ai/conversation/${id}`);
+                    console.log(response.data.message);
+                    this.newConversation();
+                    this.loadConversations();
+                }catch (error) {
+                    console.error(
+                        'Error deleting conversation:',
+                        error
+                    );
                 }
             }
         }
     }
 </script>
 
-
-<style scoped>
-
-.ai-page {
-    min-height: calc(100vh - 100px);
+<style>
+    .conversation-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 10px;
+    padding: 8px 10px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
 }
 
-
-/* Chat */
-
-.chat-container {
-    min-height: 400px;
-    max-height: 500px;
-    overflow-y: auto;
-    background: #f8fafc;
+.conversation-item:hover {
+    background: #f5f7fa;
 }
 
-
-/* Empty chat */
-
-.empty-chat {
-    padding-top: 100px;
+.conversation-active {
+    background: #eef4ff;
 }
 
+.conversation-title {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    text-align: left;
+    padding: 6px 4px;
+    color: #343a40;
+    font-weight: 500;
+}
 
-/* Messages */
+.conversation-active .conversation-title {
+    color: #0d6efd;
+    font-weight: 600;
+}
 
+.conversation-delete {
+    border: 0;
+    background: transparent;
+    color: #adb5bd;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.conversation-delete:hover {
+    color: #dc3545;
+    background: #fff0f0;
+}
+
+.conversation-action {
+    border: 0;
+    background: transparent;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    color: #adb5bd;
+    transition: all 0.2s ease;
+}
+
+.conversation-action:hover {
+    color: #0d6efd;
+    background: #eef4ff;
+}
 .message-wrapper {
     display: flex;
 }
@@ -244,59 +455,20 @@
     justify-content: flex-start;
 }
 
+.user-message .message {
+    text-align: right;
+}
+
+.ai-message .message {
+    text-align: left;
+}
 
 .message {
     max-width: 70%;
-    padding: 12px 16px;
-    border-radius: 16px;
 }
 
-
-.user-message .message {
-    background: #3b82f6;
-    color: white;
-    border-bottom-right-radius: 4px;
+.chat-container {
+    height: 500px;
+    overflow-y: auto;
 }
-
-
-.ai-message .message {
-    background: white;
-    color: #1f2937;
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-
-/* Message text */
-
-.message-header {
-    font-size: 13px;
-}
-
-.message-text {
-    white-space: pre-wrap;
-    line-height: 1.6;
-}
-
-
-/* Inputs */
-
-.form-control,
-.form-select {
-    border-radius: 10px;
-    padding: 10px 14px;
-}
-
-
-.input-group .form-control {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-}
-
-
-.input-group .btn {
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
-
 </style>

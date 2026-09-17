@@ -68,6 +68,9 @@ class User extends Authenticatable
         return $this->hasMany(Project::class, 'manager_id');
     }
     
+    public function aiConversations() {
+        return $this->hasMany(AIConversation::class, 'user_id');
+    }
     /*public function logs() {
         return $this->hasMany(SystemLog::class);
     }

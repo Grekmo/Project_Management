@@ -38,8 +38,14 @@ use Illuminate\Support\Facades\Route;
 });*/
 
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->post('/ai/ask', [AIController::class, 'ask']);
 
+/*----------------AI----------------*/
+
+Route::middleware('auth:sanctum')->post('/ai/ask', [AIController::class, 'ask']);
+Route::middleware('auth:sanctum')->get('/ai/conversations', [AIController::class, 'conversations']);
+Route::middleware('auth:sanctum')->get('/ai/conversation/{id}', [AIController::class, 'conversation']);
+Route::middleware('auth:sanctum')->delete('/ai/conversation/{id}', [AIController::class, 'deleteConversation']);
+Route::middleware('auth:sanctum')->put('ai/conversation/{id}', [AIController::class, 'renameConversation']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/projects', [ProjectController::class, 'index']);
 });
