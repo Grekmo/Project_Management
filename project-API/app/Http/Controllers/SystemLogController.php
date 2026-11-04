@@ -13,7 +13,20 @@ class SystemLogController extends Controller
     public function index()
     {
         $this->authorize('viewAny', SystemLog::class);
-        $logs = SystemLog::with('user')->latest()->paginate(20);
+
+        $search = request()->query('search');
+        $logs = SystemLog::with('user')->when($search, function ($query) use ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('action', 'like', "%{$search}%")
+                ->orWhere('model', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%")
+                ->orWhere('ip_address', 'like', "%{$search}%")
+                ->orWhere('model_id', 'like', "%{$search}%")
+                ->orWhereHas('user', function ($userQuery) use ($search) {
+                    $userQuery->where('name', 'like', "%{$search}%");
+                });
+            });
+        })->latest()->paginate(20);
 
         return response()->json([
             'status' => 200,

@@ -364,10 +364,7 @@ export default {
                 );
 
                 if (!notification.read_at) {
-                    this.unreadNotifications = Math.max(
-                        0,
-                        this.unreadNotifications - 1
-                    );
+                    this.unreadNotifications = Math.max(0,this.unreadNotifications - 1);
                 }
 
                 toast.success(res.data.message);
