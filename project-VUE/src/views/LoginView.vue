@@ -56,23 +56,8 @@
         </div>
     </div>
 </template>
-<!-- <template>
-  <div>
-    <h2>Login</h2>
-    <form  @submit.prevent="loginFunction">
-      <div>
-        <label for="email">Email : </label>
-        <input type="text" id="email" v-model="form.email" />
-      </div>
-      <div>
-        <label for="password">Password : </label>
-        <input type="password" id="password" v-model="form.password" />
-      </div>
-      <button type="submit">Login</button>
-    </form>
-  </div>
-</template>
--->
+>
+
 <script>
   /**
      1) data()

@@ -4,6 +4,7 @@ use App\Http\Controllers\AIController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManagerDashboardController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SystemLogController;
 use App\Http\Controllers\TaskController;
@@ -37,17 +38,26 @@ use Illuminate\Support\Facades\Route;
     Route::post('/register', [AuthController::class, 'register']);
 });*/
 
-Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-
-/*----------------AI----------------*/
-
-Route::middleware('auth:sanctum')->post('/ai/ask', [AIController::class, 'ask']);
-Route::middleware('auth:sanctum')->get('/ai/conversations', [AIController::class, 'conversations']);
-Route::middleware('auth:sanctum')->get('/ai/conversation/{id}', [AIController::class, 'conversation']);
-Route::middleware('auth:sanctum')->delete('/ai/conversation/{id}', [AIController::class, 'deleteConversation']);
-Route::middleware('auth:sanctum')->put('ai/conversation/{id}', [AIController::class, 'renameConversation']);
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::get('/projects', [ProjectController::class, 'index']);
+
+    /*----------------AI----------------*/
+
+    Route::post('/ai/ask', [AIController::class, 'ask']);
+    Route::get('/ai/conversations', [AIController::class, 'conversations']);
+    Route::get('/ai/conversation/{id}', [AIController::class, 'conversation']);
+    Route::delete('/ai/conversation/{id}', [AIController::class, 'deleteConversation']);
+    Route::put('/ai/conversation/{id}', [AIController::class, 'renameConversation']);
+
+    /*----------------Notifications----------------*/
+
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+    Route::post('/notifications/all-read', [NotificationController::class, 'markAllAsRead']);
+
+    Route::post('/logout', [AuthController::class, 'logout']);
 });
 
 /*------------- ROLE ADMIN -------------- */

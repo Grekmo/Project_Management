@@ -88,6 +88,17 @@ const router = createRouter({
       ],
     },
     {
+      path: '/notifications',
+      component: MainLayout,
+      children: [
+        { path: '',
+          name: 'notifications',
+          component:() => import('@/views/notifications/NotificationView.vue'),
+          meta: { title: 'Notifications' } 
+        }
+      ],
+    },
+    {
       path: '/ai-assistant',
       component: MainLayout,
       children: [

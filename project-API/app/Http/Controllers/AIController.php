@@ -15,30 +15,12 @@ class AIController extends Controller
     {
         $request->validate([
             'project_id' => 'nullable|exists:projects,id',
-            'conversation_id' => 'nullable|exists:ai_conversations,id',
             'message' => 'required|string',
         ]);
 
         $user = auth()->user();
 
-        if ($request->filled('conversation_id')) {
-            $conversation = AIConversation::where('id', $request->conversation_id)->where('user_id', $user->id)->firstOrFail();
-        } else {
-            $conversation = AIConversation::create ([
-                'user_id' => $user->id,
-                'title' => $request->message
-            ]);
-        }
-
-        $messages = AIMessage::where('conversation_id', $conversation->id)->orderBy('id')->get();
-
-        $userMessage = AIMessage::create([
-            'conversation_id' => $conversation->id,
-            'message' => $request->message,
-            'sender' => 'user',
-        ]);
-
-        if ($request->filled('project_id')) {
+        if ($request->has('project_id')) {
 
             $project = Project::with(['manager', 'employees', 'tasks.employee'])->findOrFail($request->project_id);
             $this->authorize('view', $project);
@@ -54,7 +36,7 @@ class AIController extends Controller
             else if ($user->role === 'employee') {
                 $projects = Project::whereHas('employees', function ($query) use ($user) {
                     $query->where('users.id', $user->id);
-                })->with(['manager', 'employees','tasks.employee'])->get();
+                })->with(['manager', 'employees','tasks'])->get();
             }
             else {
                 return response()->json([
@@ -81,21 +63,22 @@ class AIController extends Controller
                 Status : {$task->status} 
                 Employee : {$task->employee?->name} "; 
             } 
-        }
-        foreach ($messages as $message) {
-            $prompt .= " Message from {$message->sender} : {$message->message} ";
         } 
         $prompt .= " USER QUESTION : {$request->message}
 
-        Answer the user clearly and directly.
+        Answer the user clearly, directly, and in a well-organized way.
 
-        Format your answer using Markdown:
-        - Use headings when the answer has different sections.
-        - Use bullet points for lists.
-        - Use **bold** for important names, statuses, and key information.
-        - Leave an empty line between different sections.
+        Response formatting rules:
+        - Use Markdown formatting.
+        - Use headings with ## when the answer contains different sections.
+        - Use bullet points (-) when listing multiple items.
+        - Use **bold** for important names, statuses, numbers, and key information.
+        - Leave an empty line between sections.
         - Keep each project clearly separated from the others.
-        - Do not write everything in one paragraph.
+        - When listing tasks, display each task as a separate bullet point.
+        - Do not put the entire answer in one paragraph.
+        - Keep the answer concise and easy to read.
+        - Do not use unnecessary decoration or excessive emojis.
 
         If the user asks about their own tasks, use the Current User name and compare it with the Employee field.
         If no project was selected, consider all available projects.
@@ -116,16 +99,18 @@ class AIController extends Controller
             ]
         );
 
-        $responseData = $response->json();
-
         if (!$response->successful()) {
             return response()->json([
                 'status' => $response->status(),
-                'gemini_error' => $responseData,
+                'gemini_error' => $response->json(),
             ], 500);
         }
 
-        $aiResponse = $responseData['candidates'][0]['content']['parts'][0]['text'];
+        $response = $response->json();
+
+        return response()->json([
+            'response' => $response['candidates'][0]['content']['parts'][0]['text'],
+        ]);
     }
 
     public function conversations() 

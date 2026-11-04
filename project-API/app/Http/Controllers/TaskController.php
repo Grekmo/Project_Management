@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Project;
 use App\Models\Task;
+use App\Models\User;
+use App\Notifications\TaskAssignedToNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -122,6 +124,10 @@ class TaskController extends Controller
                 'project_id' => $request->project_id,
                 'assigned_to' => $request->assigned_to,
             ]);
+            // Notify the assigned employee about the new task
+            $employee = User::findOrFail($task->assigned_to);
+            $employee->notify(new TaskAssignedToNotification($task));
+
             system_log(
                 'created',
                 'Task',

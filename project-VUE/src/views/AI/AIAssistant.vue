@@ -160,9 +160,7 @@
                                         }}
                                     </strong>
                                 </div>
-                                <div class="message-text">
-                                    {{ msg.content }}
-                                </div>
+                                <div class="message-text" v-html="renderMarkdown(msg.content)"></div>
                             </div>
                         </div>
 
@@ -214,6 +212,7 @@
 
 <script>
     import api from '@/services/axios.js';
+    import { marked } from 'marked';
 
     export default {
 
@@ -231,14 +230,16 @@
             }
         },
 
-
         mounted() {
             this.loadProjects();
             this.loadConversations();
         },
 
-
         methods: {
+
+            renderMarkdown(text) {
+                return marked.parse(text);
+            },
 
             startRename(conversation) {
                 this.editingConversationId = conversation.id;
@@ -470,5 +471,29 @@
 .chat-container {
     height: 500px;
     overflow-y: auto;
+}
+
+.message-text h1,
+.message-text h2,
+.message-text h3 {
+    margin-top: 10px;
+    margin-bottom: 8px;
+}
+
+.message-text p {
+    margin-bottom: 10px;
+}
+
+.message-text ul {
+    padding-left: 20px;
+    margin-bottom: 10px;
+}
+
+.message-text li {
+    margin-bottom: 5px;
+}
+
+.message-text strong {
+    font-weight: 700;
 }
 </style>

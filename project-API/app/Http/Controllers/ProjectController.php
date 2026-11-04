@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\User;
+use App\Notifications\EmployeeAddedToProjectNotification;
+use App\Notifications\ProjectAssignedToNotification;
+use App\Notifications\ProjectCompletedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -113,8 +117,23 @@ class ProjectController extends Controller
                 'end_date' => $request->end_date,
                 'manager_id' => $request->manager_id,
             ]);
+            // Send notification to the assigned manager
+            $manager =  User::findOrFail($project->manager_id);
+            $manager->notify(new ProjectAssignedToNotification($project));
+
             if ($request->has('employee_ids')) {
-                $project->employees()->sync($request->employee_ids);
+                $changes = $project->employees()->sync($request->employee_ids);
+                /*$project->employees()->sync([2,4,5]); = Function katkhli ghir l employee li 3endhom par example 
+                    ID(2,4,5) lier m3a had l project / sync : katzid / katmsse7 / katkhli l users li khass 
+                */
+
+                //send notification to the newly added employees
+                $employeeIds = $changes['attached'];
+                // kanakhdo l ids dyal employees li jdad w tzedo b *attached li kayna f Sync()* m3a had project bch homa li twsslhom notification
+                $employees = User::whereIn('id', $employeeIds)->get();
+                foreach ( $employees as $employee) {
+                    $employee->notify(new EmployeeAddedToProjectNotification($project));
+                }
             }
             system_log(
                 'created',
@@ -151,7 +170,7 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        $project = Project::with(['tasks.employee', 'employees', 'manager'])->find($id); 
+        $project = Project::with(['tasks.employee', 'employees', 'manager'])->findOrFail($id); 
         // 'tasks.employee' : Katjib tasks dyal had project w l kol task ja jib m3ah employee Relation li f Task Model 
 
         if ($project) {
@@ -173,7 +192,7 @@ class ProjectController extends Controller
      */
     public function edit(string $id)
     {
-        $project = Project::with(['tasks.employee','employees','manager'])->find($id);
+        $project = Project::with(['tasks.employee','employees','manager'])->findOrFail($id);
         // 'tasks.employee' : Katjib tasks dyal had project w l kol task ja jib m3ah employee Relation li Task Model 
 
         if(!$project) {
@@ -232,9 +251,24 @@ class ProjectController extends Controller
                     'end_date' => $request->end_date,
                     'manager_id' => $request->manager_id,
                 ]);
-                if ($request->has('employee_ids')) {
-                    $project->employees()->sync($request->employee_ids);
+
+                // Send notification to the assigned manager
+                if( $oldData['manager_id'] != $request->manager_id) {
+                    $manager = User::findOrFail($request->manager_id);
+                    $manager->notify(new ProjectAssignedToNotification($project));
                 }
+
+                if ($request->has('employee_ids')) {
+                    $changes = $project->employees()->sync($request->employee_ids);
+
+                    $newEmployeeIds = $changes['attached'];
+                    //$removedEmployeeIds = $changes['detached'];
+                    $employees = User::whereIn('id', $newEmployeeIds)->get();
+                    foreach ($employees as $employee) {
+                        $employee->notify(new EmployeeAddedToProjectNotification($project));
+                    }    
+                }
+
                 $newData = $project->only([
                     'name',
                     'status',
@@ -286,17 +320,32 @@ class ProjectController extends Controller
                     'status' => $request->status,
                     'description' => $request->description,
                 ]);
+                
                 if ($request->has('employee_ids')) { //$project->employees() = REALTION F PROJECT MODEL
-                    $project->employees()->sync($request->employee_ids); 
+                   $changes = $project->employees()->sync($request->employee_ids); 
                     /*$project->employees()->sync([2,4,5]); = Function katkhli ghir l employee li 3endhom par example 
                         ID(2,4,5) lier m3a had l project / sync : katzid / katmsse7 / katkhli l users li khass 
                     */
+                    $newEmployeeIds = $changes['attached']; 
+                    // kanakhdo l ids dyal employees li jdad w tzedo b *attached li kayna f Sync()* m3a had project bch homa li twsslhom notification
+                    //$removedEmployeeIds = $changes['detached'];
+                    $employees = User::whereIn('id', $newEmployeeIds)->get();
+                    foreach( $employees as $employee) {
+                        $employee->notify(new EmployeeAddedToProjectNotification($project));
+                    }
                 }
-                $newData = $project->only([
+                $newData = $project->only(
                     'status',
                     'description',
-                ]);
+                );
                 $newData['employee_names'] = $project->employees()->pluck('users.name')->toArray();
+
+                if ($newData['status'] === 'completed' && $oldData['status'] !== 'completed') {
+                    $admins = User::where('role', 'admin')->get();
+                    foreach ($admins as $admin) {
+                        $admin->notify(new ProjectCompletedNotification($project));
+                    }
+                }
                 
                 system_log(
                     'updated',
