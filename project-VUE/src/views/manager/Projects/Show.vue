@@ -193,6 +193,13 @@
                     >
                         Back
                     </RouterLink>
+                    <button
+                        @click="exportPDF"
+                        class="btn btn-danger"
+                    >
+                        <i class="bi bi-file-pdf-fill me-2"></i>
+                        Export PDF
+                    </button>
                     <RouterLink
                         :to="{ name:'manager.edit.projects' , params:{id:projects.id} }"
                         class="btn btn-warning"
@@ -245,6 +252,30 @@
         },
 
         methods: {
+
+            exportPDF() {
+                api.get(`/manager/projects/${this.projects.id}/pdf`, {
+                    responseType: 'blob'
+                })
+                .then(response => {
+                    const file = new Blob([response.data], {
+                        type: 'application/pdf'
+                    });
+
+                    const fileURL = window.URL.createObjectURL(file);
+
+                    const link = document.createElement('a');
+                    link.href = fileURL;
+                    link.download = `project-${this.projects.id}.pdf`;
+
+                    link.click();
+
+                    window.URL.revokeObjectURL(fileURL);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+            },
 
             formDate(date) {
                 return date.split('T')[0];

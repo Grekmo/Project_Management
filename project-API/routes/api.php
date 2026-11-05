@@ -4,6 +4,7 @@ use App\Http\Controllers\AIController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ManagerDashboardController;
+use App\Http\Controllers\ManagerPDFController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SystemLogController;
@@ -82,6 +83,9 @@ Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
 
 /*------------- ROLE MANAGER -------------- */
 Route::middleware(['auth:sanctum', 'role:manager'])->group(function () {
+    
+    //PDF
+    Route::get('/manager/projects/{id}/pdf', [ManagerPDFController::class, 'export']);
 
     //Dashboard 
     Route::get('/managerDashboard', [ManagerDashboardController::class, 'index']);
@@ -107,6 +111,7 @@ Route::middleware(['auth:sanctum', 'role:manager'])->group(function () {
     Route::get('/manager/user/{id}', [UserController::class, 'edit']);
     Route::put('/manager/user/{id}', [UserController::class, 'update']);
     //Route::delete('/manager/users/{id}', [UserController::class, 'destroy']);
+
 
 });
 
